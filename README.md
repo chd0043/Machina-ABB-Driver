@@ -1,7 +1,7 @@
 # Machina Driver for ABB Robots
 
 <p align="center">
-<a href="https://youtu.be/_o0bgOYMBDY"><img width="888" height="500" src="banner.jpg"></a>
+<a href="https://youtu.be/_o0bgOYMBDY"><img width="888" height="500" src="banner.jpg" target="_blank"></a>
 </p>
 
 This project contains a series of server modules and utility functions written in RAPID code to allow driving ABB robots from remote clients. This will allow you to send TCP socket messages to the server in the form of a string:
@@ -122,7 +122,7 @@ https://github.com/RobotExMachina/Machina
 
 ## Acknowledgements
 
-Some of the techniques used in this modules were inspired by the amazing work by [Albert Nubiola](https://www.linkedin.com/in/albertnubiola) in [RoboDK](https://robodk.com/), and `open-abb` both in [it's original version](https://github.com/robotics/open_abb) and [Humhu's fork](https://github.com/Humhu/open-abb-driver).
+Some of the techniques used in this modules were inspired by the amazing work by [Albert Nubiola](https://www.linkedin.com/in/albertnubiola) on [RoboDK](https://robodk.com/), and `open-abb` both in [it's original version](https://github.com/robotics/open_abb) and [Humhu's fork](https://github.com/Humhu/open-abb-driver).
 
 ## License
 [MIT LICENSE](LICENSE.md)
