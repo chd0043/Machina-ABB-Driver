@@ -65,7 +65,7 @@ MODULE Machina_Server
     CONST num SERVER_PORT := 7000;
 
     ! Useful for handshakes and version compatibility checks...
-    CONST string MACHINA_DRIVER_VERSION := "0.6.0";
+    CONST string MACHINA_DRIVER_VERSION := "1.0.0";
 
     ! Should program exit on any kind of error?
     VAR bool USE_STRICT := TRUE;
