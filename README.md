@@ -1,7 +1,7 @@
 # Machina Driver for ABB Robots
 
 <p align="center">
-<a href="https://youtu.be/_o0bgOYMBDY" target="_blank"><img width="888" height="500" src="banner.jpg"></a>
+<a href="https://youtu.be/_o0bgOYMBDY" target="_blank"><img width="888" height="500" src="banner.gif"></a>
 </p>
 
 This project contains a series of server modules and utility functions written in RAPID code to allow driving ABB robots from remote clients. This will allow you to send TCP socket messages to the server in the form of a string:
