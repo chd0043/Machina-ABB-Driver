@@ -96,7 +96,7 @@ MODULE Machina_Server
     ! Characters used for buffer parsing
     CONST string STR_MESSAGE_END_CHAR := ";";
     CONST string STR_MESSAGE_ID_CHAR := "@";
-    CONST string STR_MESSAGE_RESPONSE_CHAR := ">";
+    CONST string STR_MESSAGE_RESPONSE_CHAR := ">";  ! this will be added to infomation request responses (acknowledgments do not include it)
 
     ! RobotWare 5.x shim
     CONST num WAIT_MAX := 8388608;
@@ -307,20 +307,20 @@ MODULE Machina_Server
     ! Sends a short acknowledgement response to the client with the recently
     ! executed instruction and an optional id
     PROC SendAcknowledgement(action a)
-        response := "";
+        response := "";  ! acknowledgement responses do not start with the response char
 
         IF a.id <> 0 THEN
-            response := STR_MESSAGE_ID_CHAR + NumToStr(a.id, 0) + STR_WHITE;
+            response := response + STR_MESSAGE_ID_CHAR + NumToStr(a.id, 0) + STR_WHITE;
         ENDIF
 
-        response := response + NumToStr(a.code, 0);
+        response := response + NumToStr(a.code, 0) + STR_MESSAGE_END_CHAR;
 
         SocketSend clientSocket \Str:=response;
     ENDPROC
 
     ! Responds to an information request by sending a formatted message
     PROC SendInformation(action a)
-        response := STR_MESSAGE_RESPONSE_CHAR;
+        response := STR_MESSAGE_RESPONSE_CHAR;  ! only send response char for information requests
 
         IF a.id <> 0 THEN
             response := response + STR_MESSAGE_ID_CHAR + NumToStr(a.id, 0) + STR_WHITE;
@@ -337,6 +337,8 @@ MODULE Machina_Server
             response := response + STR_DOUBLE_QUOTES + SERVER_IP + STR_DOUBLE_QUOTES + STR_WHITE + NumToStr(SERVER_PORT, 0);
 
         ENDTEST
+
+		response := response + STR_MESSAGE_END_CHAR;
 
         SocketSend clientSocket \Str:=response;
     ENDPROC
