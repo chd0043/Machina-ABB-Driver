@@ -10,9 +10,9 @@ MODULE Machina_Server
     !
     !
     !
-    ! This file starts a server on a virtual/real ABB robot,
-    ! waits for a TCP client, and listens to a stream of formatted
-    ! string messages.
+    ! This file starts a synchronous, single-threaded server on a virtual/real ABB robot,
+    ! waits for a TCP client, listens to a stream of formatted string messages,
+    ! buffers them parsed into an 'action' struct, and runs a loop to execute them. .
     !
     ! IMPORTANT: make sure to adjust SERVER_IP to your current setup
     !
@@ -65,7 +65,7 @@ MODULE Machina_Server
     CONST num SERVER_PORT := 7000;
 
     ! Useful for handshakes and version compatibility checks...
-    CONST string MACHINA_DRIVER_VERSION := "1.0.0";
+    CONST string MACHINA_SERVER_VERSION := "1.0.0";
 
     ! Should program exit on any kind of error?
     VAR bool USE_STRICT := TRUE;
@@ -331,7 +331,7 @@ MODULE Machina_Server
         TEST a.p1
 
         CASE 1:  ! Module version
-            response := response + STR_DOUBLE_QUOTES + MACHINA_DRIVER_VERSION + STR_DOUBLE_QUOTES;
+            response := response + STR_DOUBLE_QUOTES + MACHINA_SERVER_VERSION + STR_DOUBLE_QUOTES;
 
         CASE 2:  ! IP and PORT
             response := response + STR_DOUBLE_QUOTES + SERVER_IP + STR_DOUBLE_QUOTES + STR_WHITE + NumToStr(SERVER_PORT, 0);
