@@ -1,16 +1,30 @@
-# Machina Driver for ABB Robots
+# Machina TCP Server for ABB Robots
 
 <p align="center">
-<a href="https://youtu.be/_o0bgOYMBDY" target="_blank"><img width="888" height="500" src="banner.gif"></a>
+<a href="https://youtu.be/_o0bgOYMBDY" target="_blank"><img width="888" height="480" src="banner.gif"></a>
 </p>
 
-This project contains a series of server modules and utility functions written in RAPID code to allow driving ABB robots from remote clients. This will allow you to send TCP socket messages to the server in the form of a string:
+This project contains a series of server modules and utility functions written in RAPID code to allow controlling an ABB robot in real time from a remote TCP client. This modules can be used stand-alone, or in tandem with the rest of the [Robot Ex Machina](https://github.com/RobotExMachina) tools for robot programming and control.
+
+## Hello Robot!
+
+Provided the appropriate module/s have been loaded on the real/virtual controller, and the program is running, any framework that supports TCP socketing can be used to stream string messages to this TCP server on the controller. For example, sending the following message to the server:
+
+```
+7 "Hello Robot!";
+```
+
+will display the `Hello Robot!` string on the device's FlexPendant (`7`). Similarly, the following message:
 
 ```
 @17 1 300 350 400 0 0 1 0;
 ```
 
-Which will move the robot linearly `1` to XYZ coordinates `300 350 400` in mm with WXYZ quaternion orientation of `0 0 1 0`, with an optional id `17` that will be attached to the server `ok` response when the motion is performed by the robot.
+will move the robot linearly (`1`) to XYZ coordinates `300 350 400` in mm with WXYZ quaternion orientation of `0 0 1 0`, with an optional id of `17`. This id will be attached to the server's acknowledgement response whenever the motion has completed:
+
+```
+@17 1;
+```
 
 ## Disclaimer
 
@@ -25,6 +39,26 @@ When using robots in a real-time interactive environment, please make sure:
 
 __Machina is in early stage of development.__ You are using this software at your own risk, no warranties are provided herewith, and unexpected results/bugs may arise during its use. Always test and simulate your applications thoroughly before running them on a real device. The author/s shall not be liable for any injuries, damages or losses consequence of using this software in any way whatsoever.
 
+## Quick Start
+
+### Requirements
+
+You will need a:
+- Real or virtual ABB six-axis robot arm with an IRC5 controller.
+- The robot needs the `616-1: PC Interface` option.
+- Optionally, you may want to also have the `623-1: Multitasking` option for better performance via multithreading.
+
+### Robot Setup
+_(This section needs improvement, would you like to contribute?)_
+
+This project contains two versions of the server, `SingleTask` and `MultiTask`, based on availability of `623-1: Multitasking`. Use this guide as a reference on how to install them: https://github.com/robotics/open_abb/wiki/Configuring-an-ABB-Robot-for-OAD
+
+### Client Setup
+
+Connection to the server can be established via any client that supports TCP/IP socketing, adhering to the API format. There are some samples in the folders written in `node.js`.
+
+You may want to check our sibling projects that use this protocols at their core: https://github.com/RobotExMachina/Machina
+
 ## API
 
 Socket messages to the server must be sent as ASCII strings, following this protocol:
@@ -35,8 +69,8 @@ Socket messages to the server must be sent as ASCII strings, following this prot
 
 which means:
 
-- `@id`: messages may start with an optional `id` in the form of a `@` character followed by an integer. This `id` will be used to signal completed actions in responses from the server. `@0` is reserved, start with `@1`.
-- `INST_NUMBER`: a mandatory integer representing the action to be performed, see below.
+- `@id`: messages may start with an optional `id` in the form of a `@` character followed by an integer. This `id` will be used to signal completed actions in responses from the server.
+- `INST_NUMBER`: a mandatory integer representing the action to be performed (see below).
 - `"StringParam"`: if the instruction requires a string parameter (write a message to the pendant, write to a signal...), the string must go first and encapsulated in double quotes.
 - `Param#`: the message may contain up to eleven numerical parameters, representing different information depending on the instruction. Decimal positions, exponentials and negative signs are permitted. It is recommended to stick to five significant digits.
 - `;`: a mandatory semicolon as statement terminator.
@@ -44,20 +78,26 @@ which means:
 
 So for example:
 
-- `@17 1 300 350 400 0 0 1 0;`: move the robot linearly `1` to XYZ coordinates `300 350 400` in mm and WXYZ quaternion orientation `0 0 1 0`, with id `17`.
-- `@34 3 0 0 0 0 90 0`: rotate the six robot joints axes `4` to angular values `0 0 0 0 90 0` degrees with id `34`.
-- `@485 4 200;`: set linear speed `4` to `200` mm/s with id `485`.
-- `7 "Hello Robot!"";`: write in the _FlexPendant_ `7` the message `Hello Robot!` with (no id).
+- `@17 1 300 350 400 0 0 1 0;`: move the robot linearly (`1`) to XYZ coordinates `300 350 400` in mm and WXYZ quaternion orientation `0 0 1 0`, with id `17`.
+- `@34 3 0 0 0 0 90 0`: rotate the six robot joints axes (`3`) to angular values `0 0 0 0 90 0` degrees with id `34`.
+- `@485 4 200;`: set linear speed (`4`) to `200` mm/s with id `485`.
+- `7 "Hello Robot!"";`: write in the _FlexPendant_ (`7`) the message `Hello Robot!` with (no id).
 
 This can be seen working in action here: https://youtu.be/_o0bgOYMBDY
 
 Upon completion of the instruction, the server will respond with an acknowledgement message in the form:
 
 ```
->@17 1
+@17 1;
 ```
 
 indicating the id and the number of the completed instruction. Please note that for motion instructions, this may happen slightly before completion of the motion, as the Program Pointer always moves ahead of the Motion Pointer.
+
+If the message was an request for information (such as `101` for `INST_GET_INFO`), then the response will be preceded by a `>` symbol and include parameters from the query. For instance, for a `@234 101 2;` instruction (request IP and PORT), the response would be:
+
+```
+>@234 101 2 "192.168.125.1" 7000;
+```
 
 The API can be customized via a set of constant declarations on its header, although it is advised to keep it fixed for compatibility reasons:
 
@@ -96,29 +136,6 @@ The API can be customized via a set of constant declarations on its header, alth
 - The `;` character can only be used as statement terminator, nowhere else (including inside string parameters).
 - Messages cannot be longer than 80 characters, including statement terminator.
 - Use clean formatting: for performance, the parser does not account for preceding, trailing or double spacing in the message.
-
-
-## Quick Start
-
-### Requirements
-
-You will need a:
-- Real or virtual ABB six-axis robot arm with an IRC5 controller.
-- The robot needs the `616-1: PC Interface` option.
-- Optionally, you may want to also have the `623-1: Multitasking` option for better performance via multithreading.
-
-### Robot Setup
-_This section needs improvement, contribute?_
-
-This project contains two versions of the server, `SingleTask` and `MultiTask`, based on availability of `623-1: Multitasking`. Use this guide as a reference on how to install them: https://github.com/robotics/open_abb/wiki/Configuring-an-ABB-Robot-for-OAD
-
-### Client Setup
-
-Connection to the server can be established via any client that supports TCP/IP socketing, adhering to the API format. There are some samples in the folders written in `node.js`.
-
-You may want to check our sibling projects that use this protocols at their core:
-
-https://github.com/RobotExMachina/Machina
 
 ## Acknowledgements
 

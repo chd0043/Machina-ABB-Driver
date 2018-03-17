@@ -330,7 +330,7 @@ MODULE Machina_Server
 
         TEST a.p1
 
-        CASE 1:  ! Driver version
+        CASE 1:  ! Module version
             response := response + STR_DOUBLE_QUOTES + MACHINA_DRIVER_VERSION + STR_DOUBLE_QUOTES;
 
         CASE 2:  ! IP and PORT
