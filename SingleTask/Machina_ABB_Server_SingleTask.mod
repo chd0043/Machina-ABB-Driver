@@ -22,7 +22,7 @@ MODULE Machina_Server
     !
     ! MIT License
     !
-    ! Copyright (c) 2018 Jose Luis García del Castillo y López
+    ! Copyright (c) 2018 Jose Luis Garcia del Castillo y Lopez
     !
     ! Permission is hereby granted, free of charge, to any person obtaining a copy
     ! of this software and associated documentation files (the "Software"), to deal
@@ -236,7 +236,7 @@ MODULE Machina_Server
 
         ERROR
             IF ERRNO = ERR_SYM_ACCESS THEN
-                TPWrite "Could not find signal """ + currentAction.s1 + """";
+                TPWrite "MACHINA ERROR: Could not find signal """ + currentAction.s1 + """";
                 TPWrite "Errors will follow";
                 IF USE_STRICT THEN EXIT; ENDIF
                 STOP;
