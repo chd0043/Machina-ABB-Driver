@@ -1,4 +1,4 @@
-# Machina TCP Server for ABB Robots
+# Machina Driver for ABB Robots
 
 <p align="center">
 <a href="https://youtu.be/_o0bgOYMBDY" target="_blank"><img width="888" height="480" src="banner.gif"></a>
