@@ -1,13 +1,11 @@
 MODULE Machina_Server
 
-    ! ##     ##    ###     ######  ##     ## #### ##    ##    ###
-    ! ###   ###   ## ##   ##    ## ##     ##  ##  ###   ##   ## ##
-    ! #### ####  ##   ##  ##       ##     ##  ##  ####  ##  ##   ##
-    ! ## ### ## ##     ## ##       #########  ##  ## ## ## ##     ##
-    ! ##     ## ######### ##       ##     ##  ##  ##  #### #########
-    ! ##     ## ##     ## ##    ## ##     ##  ##  ##   ### ##     ##
-    ! ##     ## ##     ##  ######  ##     ## #### ##    ## ##     ##
-    !
+    ! ###\   ###\ #####\  ######\##\  ##\##\###\   ##\ #####\
+    ! ####\ ####\##\\\##\##\\\\\\##\  ##\##\####\  ##\##\\\##\
+    ! ##\####\##\#######\##\     #######\##\##\##\ ##\#######\
+    ! ##\\##\\##\##\\\##\##\     ##\\\##\##\##\\##\##\##\\\##\
+    ! ##\ \\\ ##\##\  ##\\######\##\  ##\##\##\ \####\##\  ##\
+    ! \\\     \\\\\\  \\\ \\\\\\\\\\  \\\\\\\\\  \\\\\\\\  \\\
     !
     !
     ! This file starts a synchronous, single-threaded server on a virtual/real ABB robot,
@@ -96,7 +94,7 @@ MODULE Machina_Server
     ! Characters used for buffer parsing
     CONST string STR_MESSAGE_END_CHAR := ";";
     CONST string STR_MESSAGE_ID_CHAR := "@";
-    CONST string STR_MESSAGE_RESPONSE_CHAR := ">";  ! this will be added to infomation request responses (acknowledgments do not include it)
+    CONST string STR_MESSAGE_RESPONSE_CHAR := ">";  ! this will be added to information request responses (acknowledgments do not include it)
 
     ! RobotWare 5.x shim
     CONST num WAIT_MAX := 8388608;
@@ -275,6 +273,7 @@ MODULE Machina_Server
 
         ERROR
             IF ERRNO = ERR_SOCK_TIMEOUT THEN
+                TPWrite "Machina: ServerRecover timeout";
                 RETRY;
             ELSEIF ERRNO = ERR_SOCK_CLOSED THEN
                 RETURN;
@@ -300,6 +299,9 @@ MODULE Machina_Server
         ERROR
         IF ERRNO = ERR_SOCK_CLOSED THEN
             ServerRecover;
+            RETRY;
+        ELSEIF ERRNO = ERR_SOCK_TIMEOUT THEN
+            TPWrite "Machina: ReadStream() timeout";
             RETRY;
         ENDIF
     ENDPROC
@@ -338,7 +340,7 @@ MODULE Machina_Server
 
         ENDTEST
 
-		response := response + STR_MESSAGE_END_CHAR;
+        response := response + STR_MESSAGE_END_CHAR;
 
         SocketSend clientSocket \Str:=response;
     ENDPROC
