@@ -273,7 +273,7 @@ MODULE Machina_Server
 
         ERROR
             IF ERRNO = ERR_SOCK_TIMEOUT THEN
-                TPWrite "Machina: ServerRecover timeout";
+                TPWrite "Machina error: ServerRecover timeout. Retrying...";
                 RETRY;
             ELSEIF ERRNO = ERR_SOCK_CLOSED THEN
                 RETURN;
@@ -301,7 +301,7 @@ MODULE Machina_Server
             ServerRecover;
             RETRY;
         ELSEIF ERRNO = ERR_SOCK_TIMEOUT THEN
-            TPWrite "Machina: ReadStream() timeout";
+            TPWrite "Machina: ReadStream() timeout. Retrying.";
             RETRY;
         ENDIF
     ENDPROC
